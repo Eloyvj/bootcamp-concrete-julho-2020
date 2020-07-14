@@ -30,135 +30,182 @@ class LoginActivityTest {
     private val correctPassword = "Eloyvj@1"
 
     @get:Rule
-    val rule = IntentsTestRule(LoginActivity::class.java, true, false)
+    val loginActivityTest = IntentsTestRule(LoginActivity::class.java)
+
+    @get:Rule
+    val disableAnimationRule = DisableAnimationRule()
 
     @Test
     fun givenInitialState_shouldShowEmailAndPasswordEmpty(){
-        rule.launchActivity(null)
 
-        Espresso.onView(withId(R.id.email))
-            .check(matches(withText("")))
-        Espresso.onView(withId(R.id.password))
-            .check(matches(withText("")))
+        loginArrange {
+            mockHomeActivity()
+        }
+
+        loginAssert {
+            checkTextShown("", R.id.email)
+            checkTextShown("", R.id.password)
+        }
     }
 
     @Test
     fun givenPasswordShortterThanEight_whenClickLogin_shouldShowMessageAboutShortLength(){
-        rule.launchActivity(null)
 
-        Espresso.onView(withId(R.id.email))
-            .perform(ViewActions.replaceText(email), ViewActions.closeSoftKeyboard())
-        Espresso.onView(withId(R.id.password))
-            .perform(ViewActions.replaceText(shortPassword), ViewActions.closeSoftKeyboard())
-        Espresso.onView((withId(R.id.login)))
-            .perform(ViewActions.click())
-        Espresso.onView(withText(containsString("Oito caracteres."))).inRoot(isDialog()).check(matches(isDisplayed()))
+        loginArrange {
+            mockHomeActivity()
+        }
+
+        loginAct {
+            typeText(email, R.id.email)
+            typeText(shortPassword, R.id.password)
+            click(R.id.login)
+        }
+
+        loginAssert {
+            checkAlertDialogContainsText("Oito caracteres.")
+        }
     }
 
     @Test
     fun givenPasswordWithoutUpperCase_whenClickLogin_shouldShowMessageAboutUpperCase(){
-        rule.launchActivity(null)
 
-        Espresso.onView(withId(R.id.email))
-            .perform(ViewActions.replaceText(email), ViewActions.closeSoftKeyboard())
-        Espresso.onView(withId(R.id.password))
-            .perform(ViewActions.replaceText(justLowerPassword), ViewActions.closeSoftKeyboard())
-        Espresso.onView((withId(R.id.login)))
-            .perform(ViewActions.click())
-        Espresso.onView(withText(containsString("Uma letra maiúscula."))).inRoot(isDialog()).check(matches(isDisplayed()))
+        loginArrange {
+            mockHomeActivity()
+        }
+
+        loginAct {
+            typeText(email, R.id.email)
+            typeText(justLowerPassword, R.id.password)
+            click(R.id.login)
+        }
+
+        loginAssert {
+            checkAlertDialogContainsText("Uma letra maiúscula.")
+        }
     }
 
     @Test
     fun givenPasswordWithoutLowerCase_whenClickLogin_shouldShowMessageAboutLowerCase(){
-        rule.launchActivity(null)
 
-        Espresso.onView(withId(R.id.email))
-            .perform(ViewActions.replaceText(email), ViewActions.closeSoftKeyboard())
-        Espresso.onView(withId(R.id.password))
-            .perform(ViewActions.replaceText(justUpperPasword), ViewActions.closeSoftKeyboard())
-        Espresso.onView((withId(R.id.login)))
-            .perform(ViewActions.click())
-        Espresso.onView(withText(containsString("Uma letra minúscula."))).inRoot(isDialog()).check(matches(isDisplayed()))
+        loginArrange {
+            mockHomeActivity()
+        }
+
+        loginAct {
+            typeText(email, R.id.email)
+            typeText(justUpperPasword, R.id.password)
+            click(R.id.login)
+        }
+
+        loginAssert {
+            checkAlertDialogContainsText("Uma letra minúscula.")
+        }
     }
 
     @Test
     fun givenPasswordWithoutNumber_whenClickLogin_shouldShowMessageAboutNumber(){
-        rule.launchActivity(null)
 
-        Espresso.onView(withId(R.id.email))
-            .perform(ViewActions.replaceText(email), ViewActions.closeSoftKeyboard())
-        Espresso.onView(withId(R.id.password))
-            .perform(ViewActions.replaceText(hasNotNumberPassword), ViewActions.closeSoftKeyboard())
-        Espresso.onView((withId(R.id.login)))
-            .perform(ViewActions.click())
-        Espresso.onView(withText(containsString("Um número."))).inRoot(isDialog()).check(matches(isDisplayed()))
+        loginArrange {
+            mockHomeActivity()
+        }
+
+        loginAct {
+            typeText(email, R.id.email)
+            typeText(hasNotNumberPassword, R.id.password)
+            click(R.id.login)
+        }
+
+        loginAssert {
+            checkAlertDialogContainsText("Um número.")
+        }
     }
 
     @Test
     fun givenPasswordWithoutSpecialChar_whenClickLogin_shouldShowMessageAboutSpecialChar(){
-        rule.launchActivity(null)
 
-        Espresso.onView(withId(R.id.email))
-            .perform(ViewActions.replaceText(email), ViewActions.closeSoftKeyboard())
-        Espresso.onView(withId(R.id.password))
-            .perform(ViewActions.replaceText(hasNotSpecialCharPassword), ViewActions.closeSoftKeyboard())
-        Espresso.onView((withId(R.id.login)))
-            .perform(ViewActions.click())
-        Espresso.onView(withText(containsString("Um caracter especial"))).inRoot(isDialog()).check(matches(isDisplayed()))
+        loginArrange {
+            mockHomeActivity()
+        }
+
+        loginAct {
+            typeText(email, R.id.email)
+            typeText(hasNotSpecialCharPassword, R.id.password)
+            click(R.id.login)
+        }
+
+        loginAssert {
+            checkAlertDialogContainsText("Um caracter especial.")
+        }
     }
 
     @Test
     fun givenEmailAndPasswordFilled_whenClickClear_shouldClearAllFields(){
-        rule.launchActivity(null)
 
-        Espresso.onView(withId(R.id.email))
-            .perform(ViewActions.replaceText(email), ViewActions.closeSoftKeyboard())
-        Espresso.onView(withId(R.id.password))
-            .perform(ViewActions.replaceText(hasNotSpecialCharPassword), ViewActions.closeSoftKeyboard())
-        Espresso.onView((withId(R.id.clear)))
-            .perform(ViewActions.click())
-        Espresso.onView(withId(R.id.email))
-            .check(matches(withText("")))
-        Espresso.onView(withId(R.id.password))
-            .check(matches(withText("")))
+        loginArrange {
+            mockHomeActivity()
+        }
+
+        loginAct {
+            typeText(email, R.id.email)
+            typeText(correctPassword, R.id.password)
+            click(R.id.clear)
+        }
+
+        loginAssert {
+            checkTextShown("", R.id.email)
+            checkTextShown("", R.id.password)
+        }
     }
 
     @Test
     fun givenEmailEmpty_whenClickLogin_shouldShowMessageEmailEmpty(){
-        rule.launchActivity(null)
 
-        Espresso.onView(withId(R.id.password))
-            .perform(ViewActions.replaceText(correctPassword), ViewActions.closeSoftKeyboard())
-        Espresso.onView((withId(R.id.login)))
-            .perform(ViewActions.click())
-        Espresso.onView(withText(containsString("O campo email está vazio."))).inRoot(isDialog()).check(matches(isDisplayed()))
+        loginArrange {
+            mockHomeActivity()
+        }
+
+        loginAct {
+            typeText(correctPassword, R.id.password)
+            click(R.id.login)
+        }
+
+        loginAssert {
+            checkAlertDialogContainsText("O campo email está vazio.")
+        }
     }
 
     @Test
     fun givenPasswordEmpty_whenClickLogin_shouldShowMessagePasswordEmpty(){
-        rule.launchActivity(null)
 
-        Espresso.onView(withId(R.id.email))
-            .perform(ViewActions.replaceText(email), ViewActions.closeSoftKeyboard())
-        Espresso.onView((withId(R.id.login)))
-            .perform(ViewActions.click())
-        Espresso.onView(withText(containsString("O campo password está vazio."))).inRoot(isDialog()).check(matches(isDisplayed()))
+        loginArrange {
+            mockHomeActivity()
+        }
+
+        loginAct {
+            typeText(email, R.id.email)
+            click(R.id.login)
+        }
+
+        loginAssert {
+            checkAlertDialogContainsText("O campo password está vazio.")
+        }
     }
 
     @Test
     fun givenCorrectPassword_whenClickLogin_shouldSendIntentForNextActivity(){
 
-        rule.launchActivity(null)
+        loginArrange {
+            mockHomeActivity()
+        }
 
-        Intents.intending(IntentMatchers.hasComponent(SecondActivity::class.java.name))
-            .respondWith(Instrumentation.ActivityResult(Activity.RESULT_CANCELED, null))
+        loginAct {
+            typeText(email, R.id.email)
+            typeText(correctPassword, R.id.password)
+            click(R.id.login)
+        }
 
-        Espresso.onView(withId(R.id.email))
-            .perform(ViewActions.replaceText(email), ViewActions.closeSoftKeyboard())
-        Espresso.onView(withId(R.id.password))
-            .perform(ViewActions.replaceText(correctPassword), ViewActions.closeSoftKeyboard())
-        Espresso.onView((withId(R.id.login)))
-            .perform(ViewActions.click())
-        Intents.intended(IntentMatchers.hasComponent(SecondActivity::class.java.name))
+        loginAssert {
+            checkGoTo(SecondActivity::class.java.name)
+        }
     }
 }
